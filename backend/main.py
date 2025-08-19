@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from routes import ml, trade
+from routes import ml, trade, settings
 from dotenv import load_dotenv
 import os
 
@@ -26,6 +26,7 @@ app.add_middleware(
 # Include routers
 app.include_router(ml.router, prefix="/api/ml", tags=["ML Predictions"])
 app.include_router(trade.router, prefix="/api/trade", tags=["Paper Trading"])
+app.include_router(settings.router, prefix="/api/settings", tags=["Settings"])
 
 # Health check endpoint
 @app.get("/health")

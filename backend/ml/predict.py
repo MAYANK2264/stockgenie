@@ -1,3 +1,4 @@
+import os
 import yfinance as yf
 import pandas as pd
 import numpy as np
@@ -6,9 +7,23 @@ from datetime import datetime, timedelta
 from train_model import calculate_technical_indicators, prepare_features
 
 class StockPredictor:
-    def __init__(self, model_path='model.pkl'):
-        """Initialize predictor with trained model."""
-        self.model = joblib.load(model_path)
+    def __init__(self, model_path: str | None = None):
+        """Initialize predictor and try to load the trained model lazily.
+
+        If the model file is missing, keep `self.model` as None and allow the server to start.
+        """
+        if model_path is None:
+            model_path = os.path.join(os.path.dirname(__file__), 'model.pkl')
+        self.model_path = model_path
+        self.model = None
+        try:
+            if os.path.exists(self.model_path):
+                self.model = joblib.load(self.model_path)
+            else:
+                print(f"Model file not found at {self.model_path}. Endpoints will return errors until trained.")
+        except Exception as e:
+            print(f"Failed to load model from {self.model_path}: {e}")
+            self.model = None
         self.stocks = ['AAPL', 'MSFT', 'TSLA', 'AMZN', 'GOOGL', 'NVDA', 'META', 'NFLX', 'AMD', 'BABA']
         
     def get_live_data(self, symbol, lookback_days=60):
@@ -24,6 +39,8 @@ class StockPredictor:
     def predict_single_stock(self, symbol):
         """Make prediction for a single stock."""
         try:
+            if self.model is None:
+                raise RuntimeError("Model is not loaded. Train the model first.")
             # Get recent data
             df = self.get_live_data(symbol)
             
@@ -62,6 +79,8 @@ class StockPredictor:
     def predict_all_stocks(self):
         """Make predictions for all stocks."""
         predictions = []
+        if self.model is None:
+            raise RuntimeError("Model is not loaded. Train the model first.")
         for symbol in self.stocks:
             pred = self.predict_single_stock(symbol)
             if pred:

@@ -8,9 +8,11 @@ import os
 sys.path.append(os.path.join(os.path.dirname(__file__), '../ml'))
 
 from predict import StockPredictor
+from utils.ai_suggestions import AISuggestionGenerator
 
 router = APIRouter()
 predictor = StockPredictor()
+ai = AISuggestionGenerator()
 
 @router.get("/predictions", response_model=List[Dict[str, Any]])
 async def get_predictions():
@@ -52,5 +54,19 @@ async def get_model_info():
                 os.path.getmtime(os.path.join(os.path.dirname(__file__), '../ml/model.pkl'))
             ).isoformat()
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/suggest")
+async def generate_suggestion(payload: Dict[str, Any]):
+    """Generate a freeform AI suggestion for the chat assistant."""
+    try:
+        prompt = payload.get("prompt", "").strip()
+        if not prompt:
+            raise HTTPException(status_code=400, detail="Missing 'prompt' in request body")
+        suggestion = await ai.generate_freeform(prompt)
+        return {"suggestion": suggestion}
+    except HTTPException:
+        raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
