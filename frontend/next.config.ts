@@ -6,10 +6,9 @@ const nextConfig: NextConfig = {
   images: { unoptimized: true },
   // Configure for static export
   trailingSlash: true,
-  // Disable dynamic features that don't work in static export
-  experimental: {
-    esmExternals: false,
-  },
+  // Set base path for GitHub Pages
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '/stockgenie',
+  assetPrefix: process.env.NEXT_PUBLIC_ASSET_PREFIX || '/stockgenie/',
   eslint: { ignoreDuringBuilds: true },
 };
 

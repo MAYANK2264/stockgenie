@@ -16,6 +16,8 @@ This project is configured to automatically deploy to GitHub Pages using GitHub 
 - **GitHub Actions**: Workflow file at `.github/workflows/gh-pages.yml`
 - **Build Output**: Static files are generated in `frontend/out/` directory
 - **Static Export**: Optimized for GitHub Pages with proper routing
+- **Base Path**: Configured for `/stockgenie` repository path
+- **CSP Headers**: Properly configured to prevent blob: script loading issues
 
 ## Manual Deployment
 
